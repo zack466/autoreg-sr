@@ -9,6 +9,7 @@ from PIL import Image
 import h5py
 import os
 import numpy as np
+from .cache import HDF5Cache
 
 class Div2KTiny(Dataset):
     def __init__(self, device):
@@ -41,44 +42,46 @@ class Div2KTiny(Dataset):
 class Div2K(Dataset):
     def __init__(self, size, factor):
         """
-        size: pixel dimensions of image to be upscaled
+        size: pixel dimensions of LR image (to be upscaled)
         factor: upscaling/downscaling factor, options: 2, 3, 4
         """
         self.size = size
         self.factor = factor
+        self.cache = HDF5Cache('div2k-x2', 16)
 
     def __len__(self):
         return 800
-    
-    def __getitem__(self, idx):
-        img_hr_name = "./datasets/saved/DIV2K_train_HR/" + str(idx+1).zfill(4) + ".png"
-        img_lr_name = f"./datasets/saved/DIV2K_train_LR_bicubic/X{self.factor}/" + str(idx+1).zfill(4) + f"x{self.factor}.png"
-        # C,H,W
-        img_hr = Image.open(img_hr_name)
-        img_lr = Image.open(img_lr_name)
-        hr_transform = transforms.Compose([
-            transforms.CenterCrop(self.size * self.factor),
-            transforms.ToTensor()
-        ])
-        lr_transform = transforms.Compose([
-            transforms.CenterCrop(self.size),
-            transforms.ToTensor()
-        ])
-        sample = {'lr': lr_transform(img_lr), 'hr': hr_transform(img_hr)}
 
-        return sample
+    def __getitem__(self, idx):
+        # TODO: what is behavior if idx is > 800?
+        return self.cache.get_item(idx, self)
     
-    def test(self):
-        t0 = time.time()
-        for idx in range(1):
-            img_hr_name = "./datasets/saved/DIV2K_train_HR/" + str(idx+1).zfill(4) + ".png"
-            img_lr_name = f"./datasets/saved/DIV2K_train_LR_bicubic/X{self.factor}/" + str(idx+1).zfill(4) + f"x{self.factor}.png"
+    def cache_func(self, i):
+        # caches the ith chunk of images
+        lr_images = []
+        hr_images = []
+        offset = i*self.cache.cache_size
+        for idx in range(self.cache.cache_size):
+            img_hr_name = "./datasets/saved/DIV2K_train_HR/" + str(offset+idx+1).zfill(4) + ".png"
+            img_lr_name = f"./datasets/saved/DIV2K_train_LR_bicubic/X{self.factor}/" + str(offset+idx+1).zfill(4) + f"x{self.factor}.png"
             # C,H,W
-            img_hr = transforms.functional.to_tensor(Image.open(img_hr_name))
-            img_lr = transforms.functional.to_tensor(Image.open(img_lr_name))
-        t1 = time.time()
-        return t1 - t0
+            img_hr = Image.open(img_hr_name)
+            img_lr = Image.open(img_lr_name)
+            hr_transform = transforms.Compose([
+                transforms.CenterCrop(self.size * self.factor),
+                transforms.ToTensor()
+            ])
+            lr_transform = transforms.Compose([
+                transforms.CenterCrop(self.size),
+                transforms.ToTensor()
+            ])
+            lr_images.append(lr_transform(img_lr))
+            hr_images.append(hr_transform(img_hr))
+        lr_stacked = np.stack(lr_images)
+        hr_stacked = np.stack(hr_images)
+        # print(lr_stacked.shape)
+        lr_type = lr_stacked.astype(np.float32)
+        hr_type = hr_stacked.astype(np.float32)
+        self.cache.cache_images(i, lr_type, hr_type)
     
-    # TODO: write cache function to convert images to hdf5 files, allow dataset to simply load from the h5
-    # bc converting png to tensor is slow (100-150 ms to load a hi-rez image)
     

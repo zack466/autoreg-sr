@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class SRCNN(nn.Module):
     def __init__(self):
         super(SRCNN, self).__init__()

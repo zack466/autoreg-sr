@@ -4,3 +4,7 @@
 .ipynb_checkpoints
 
 datasets/saved/*
+datasets/cached/*
+.vscode
+*/__pycache__
+*/*/__pycache__

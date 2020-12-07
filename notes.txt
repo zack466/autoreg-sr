@@ -1,1 +1,27 @@
 is transfer learning/pretrainng able to be applied here?
+
+TODO
+Finish writing dataset/dataloader
+- cache images as hdf5 bc PNG conversion is slow
+- will adapt when changing resolution, will cache new images
+- multiple random crops per picture
+
+Models
+- SRCNN - basic model, used to test dataset
+- some other ConvNet for SR
+- SRGAN?
+- PConv -
+- PixelSNAIL but tiny?
+- Image Transformer but tiny
+
+Tuning
+- learning rate, learning schedule
+- layer parameters
+- conv first, attention alter
+- residual connections
+
+Metrics
+- consistency, just l2 between LR and model output (downscaled)
+- PSNR, SSIM, not very important, but nice to have anyway
+- if probabilistic model, then NLL
+- measure efficiency, theres probably a library for it
