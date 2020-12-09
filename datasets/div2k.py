@@ -11,7 +11,7 @@ import os
 import numpy as np
 from .cache import HDF5Cache
 
-
+### DEPRECATED - DO NOT USE ###
 class Div2KTiny(Dataset):
     def __init__(self, device):
         ## super init??
@@ -53,7 +53,7 @@ class Div2K(Dataset):
         """
         self.size = size
         self.factor = factor
-        self.cache = HDF5Cache("div2k-x2", 16)
+        self.cache = HDF5Cache("div2k-x2", 64)
 
     def __len__(self):
         return 800
@@ -64,10 +64,13 @@ class Div2K(Dataset):
 
     def cache_func(self, i):
         # caches the ith chunk of images
+        # custom function for using HDF5Cache
         lr_images = []
         hr_images = []
         offset = i * self.cache.cache_size
         for idx in range(self.cache.cache_size):
+            if offset + idx + 1 > 800:
+                idx -= self.cache.cache_size
             img_hr_name = (
                 "./datasets/saved/DIV2K_train_HR/"
                 + str(offset + idx + 1).zfill(4)

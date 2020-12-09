@@ -38,6 +38,7 @@ class HDF5Cache:
         return self.generate_cached_name(idx) in os.listdir("./datasets/cached")
 
     def get_item(self, idx, dataset):
+        # breaks on 768
         # gets the image with index idx
         if not self.already_cached(idx):
             # self.cache_image(idx)

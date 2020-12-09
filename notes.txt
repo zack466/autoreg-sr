@@ -1,10 +1,8 @@
 is transfer learning/pretrainng able to be applied here?
 
 TODO
-Finish writing dataset/dataloader
-- cache images as hdf5 bc PNG conversion is slow
-- will adapt when changing resolution, will cache new images
-- multiple random crops per picture
+- add random crops (support for multiple patches per image) to dataset
+- add running avg loss
 
 Models
 - SRCNN - basic model, used to test dataset
@@ -25,3 +23,4 @@ Metrics
 - PSNR, SSIM, not very important, but nice to have anyway
 - if probabilistic model, then NLL
 - measure efficiency, theres probably a library for it
+- MOS using Mechanical Turk???
