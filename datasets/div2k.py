@@ -53,7 +53,7 @@ class Div2K(Dataset):
         """
         self.size = size
         self.factor = factor
-        self.cache = HDF5Cache("div2k-x2", 64)
+        self.cache = HDF5Cache(f"div2k-x{self.factor}", 64)
 
     def __len__(self):
         return 800

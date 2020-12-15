@@ -3,12 +3,13 @@ is transfer learning/pretrainng able to be applied here?
 TODO
 - add random crops (support for multiple patches per image) to dataset
 - add running avg loss
+- deal with weird noise issue in images
 
 Models
 - SRCNN - basic model, used to test dataset
 - some other ConvNet for SR
 - SRGAN?
-- PConv -
+- PConv - augment with attention?
 - PixelSNAIL but tiny?
 - Image Transformer but tiny
 
@@ -21,6 +22,7 @@ Tuning
 Metrics
 - consistency, just l2 between LR and model output (downscaled)
 - PSNR, SSIM, not very important, but nice to have anyway
+- need to use new loss function for training, MSE not gonna be good for PConv
 - if probabilistic model, then NLL
 - measure efficiency, theres probably a library for it
 - MOS using Mechanical Turk???
