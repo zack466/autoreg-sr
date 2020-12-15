@@ -29,6 +29,10 @@ def example_batch(example, batch_size):
     return torch.cat([example.unsqueeze(0)] * batch_size)
 
 
+def random_mask(dims):
+    return (torch.rand(dims) > 0.5).to(torch.float32)
+
+
 # taken from https://github.com/pytorch/examples/blob/1de2ff9338bacaaffa123d03ce53d7522d5dcc2e/imagenet/main.py
 # license information in LICENSES file
 class AverageMeter(object):
