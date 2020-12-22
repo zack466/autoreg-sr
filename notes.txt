@@ -3,7 +3,7 @@ is transfer learning/pretrainng able to be applied here?
 TODO
 - add random crops (support for multiple patches per image) to dataset
 - add running avg loss
-- deal with weird noise issue in images
+- deal with weird noise issue in images, ruining model on some examples
 
 Models
 - SRCNN - basic model, used to test dataset

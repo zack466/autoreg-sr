@@ -2,8 +2,13 @@ import time
 import utils
 
 import torch
+
+torch.manual_seed(0)
+
 import torchvision
 from torchvision import transforms
+from torchvision.transforms import RandomCrop, ToTensor
+from torchvision.transforms import functional as TF
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import h5py
@@ -46,7 +51,7 @@ class Div2KTiny(Dataset):
 
 
 class Div2K(Dataset):
-    def __init__(self, size, factor):
+    def __init__(self, size=16, factor=4, mult=4):
         """
         size: pixel dimensions of LR image (to be upscaled)
         factor: upscaling/downscaling factor, options: 2, 3, 4
@@ -54,9 +59,10 @@ class Div2K(Dataset):
         self.size = size
         self.factor = factor
         self.cache = HDF5Cache(f"div2k-x{self.factor}", 64)
+        self.mult = 4  # preferable if cache.cache_size % mult == 0
 
     def __len__(self):
-        return 800
+        return 800 * self.mult
 
     def __getitem__(self, idx):
         # TODO: what is behavior if idx is > 800?
@@ -67,9 +73,9 @@ class Div2K(Dataset):
         # custom function for using HDF5Cache
         lr_images = []
         hr_images = []
-        offset = i * self.cache.cache_size
-        for idx in range(self.cache.cache_size):
-            if offset + idx + 1 > 800:
+        offset = i * self.cache.cache_size // self.mult
+        for idx in range(self.cache.cache_size // self.mult):
+            if offset + idx + 1 > (self.__len__()):
                 idx -= self.cache.cache_size
             img_hr_name = (
                 "./datasets/saved/DIV2K_train_HR/"
@@ -84,14 +90,18 @@ class Div2K(Dataset):
             # C,H,W
             img_hr = Image.open(img_hr_name)
             img_lr = Image.open(img_lr_name)
-            hr_transform = transforms.Compose(
-                [transforms.CenterCrop(self.size * self.factor), transforms.ToTensor()]
-            )
-            lr_transform = transforms.Compose(
-                [transforms.CenterCrop(self.size), transforms.ToTensor()]
-            )
-            lr_images.append(lr_transform(img_lr))
-            hr_images.append(hr_transform(img_hr))
+
+            hr_size = self.size * self.factor
+            f = self.factor
+            for j in range(self.mult):
+                ii, j, k, l = RandomCrop.get_params(
+                    img_hr, (hr_size, hr_size)
+                )  # can't use i as variable name :/
+                hr_crop = TF.crop(img_hr, ii, j, k, l)
+                lr_crop = TF.crop(img_lr, ii // f, j // f, k // f, l // f)
+                lr_images.append(ToTensor()(lr_crop))
+                hr_images.append(ToTensor()(hr_crop))
+
         lr_stacked = np.stack(lr_images)
         hr_stacked = np.stack(hr_images)
         # print(lr_stacked.shape)
