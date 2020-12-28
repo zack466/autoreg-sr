@@ -80,9 +80,10 @@ def main():
     # optimizer
     lr = config.learning_rate
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, factor=0.5, patience=50
-    )
+    # lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    #     optimizer, factor=0.5, patience=50
+    # )
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2, gamma=0.5)
 
     # loss
     if config.loss == "L1":
@@ -150,7 +151,6 @@ def main():
             if back:
                 loss.backward()
                 optimizer.step()
-                lr_scheduler.step(loss)
 
             loss_meter.update(loss.item(), writer, step)
 
@@ -170,6 +170,9 @@ def main():
                             torch.nn.functional.mse_loss(downscaled_pred, lr).item(),
                             step,
                         )
+                    elif metric == "lr":
+                        writer.add_scalar(tag, lr_scheduler.get_last_lr()[0], step)
+        lr_scheduler.step()
 
     for epoch in range(start_epoch, start_epoch + config.epochs):
         loop(training_dataloader, epoch, training_loss)

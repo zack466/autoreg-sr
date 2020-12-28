@@ -1,8 +1,13 @@
 is transfer learning/pretrainng able to be applied here?
 
 TODO
-- LR scheduling
+- LR scheduling - keep experimenting
 - deal with weird noise issue in images, ruining model on some examples
+- masked attention layer like pconv?
+- implement pixel recursive sr
+- ray tune
+- more metrics?
+- profiler
 
 Models
 - SRCNN - basic model, used to test dataset
