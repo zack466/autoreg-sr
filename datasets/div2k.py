@@ -51,15 +51,15 @@ class Div2KTiny(Dataset):
 
 
 class Div2K(Dataset):
-    def __init__(self, size=16, factor=4, mult=4):
+    def __init__(self, size=16, factor=4, mult=4, cache_size=64):
         """
         size: pixel dimensions of LR image (to be upscaled)
         factor: upscaling/downscaling factor, options: 2, 3, 4
         """
         self.size = size
         self.factor = factor
-        self.cache = HDF5Cache(f"div2k-x{self.factor}", 64)
-        self.mult = 4  # preferable if cache.cache_size % mult == 0
+        self.cache = HDF5Cache(f"div2k-x{self.factor}-{self.size}-{mult}", cache_size)
+        self.mult = mult
 
     def __len__(self):
         return 800 * self.mult
@@ -75,7 +75,7 @@ class Div2K(Dataset):
         hr_images = []
         offset = i * self.cache.cache_size // self.mult
         for idx in range(self.cache.cache_size // self.mult):
-            if offset + idx + 1 > (self.__len__()):
+            if offset + idx + 1 > 800:
                 idx -= self.cache.cache_size
             img_hr_name = (
                 "./datasets/saved/DIV2K_train_HR/"

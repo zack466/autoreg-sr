@@ -8,3 +8,5 @@ datasets/cached/*
 .vscode
 */__pycache__
 */*/__pycache__
+models/checkpoints
+models/outputs

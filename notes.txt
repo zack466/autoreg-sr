@@ -1,8 +1,7 @@
 is transfer learning/pretrainng able to be applied here?
 
 TODO
-- add random crops (support for multiple patches per image) to dataset
-- add running avg loss
+- LR scheduling
 - deal with weird noise issue in images, ruining model on some examples
 
 Models
@@ -20,9 +19,17 @@ Tuning
 - residual connections
 
 Metrics
-- consistency, just l2 between LR and model output (downscaled)
-- PSNR, SSIM, not very important, but nice to have anyway
-- need to use new loss function for training, MSE not gonna be good for PConv
 - if probabilistic model, then NLL
 - measure efficiency, theres probably a library for it
 - MOS using Mechanical Turk???
+
+Training setups
+python train.py --model SRCNN --loss L2 --learning_rate 0.001 --lr_size 16 --up_factor 2 --epochs 1 --num_patches 4 --ckpt_name SRCNN
+python inference.py --model SRCNN --loss L2 --lr_size 16 --up_factor 2 --ckpt_name SRCNN
+
+python train.py --model PConvResNet --loss VGG19 --learning_rate 0.0005 --lr_size 32 --epochs 8 --ckpt_name pconvresnet_vgg
+python inference.py --model PConvResNet --loss VGG19 --lr_size 32 --ckpt_name pconvresnet_vgg
+
+python train.py --model PConvResNet --loss VGG19 --learning_rate 0.0005 --lr_size 32 --epochs 8 --ckpt_every 1 --ckpt_name pconvresnet_vgg
+python inference.py --model PConvResNet --lr_size 32 --loss VGG19 --ckpt_name pconvresnet_vgg
+

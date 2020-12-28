@@ -3,6 +3,7 @@ import PIL
 import torchvision
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 
 
 def showImage(img):
@@ -24,6 +25,16 @@ def showImages(imgs):
     plt.show()
 
 
+def saveImages(imgs, path):
+    fig = plt.figure()
+    for i, image in enumerate(imgs):
+        fig.add_subplot(1, len(imgs), i + 1)
+        plt.imshow((image * 256).astype("uint8").transpose(2, 1, 0))
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    plt.savefig(path)
+
+
 def example_batch(example, batch_size):
     # expands an example tensor (C,H,W) to a full batch (B,C,H,W)
     return torch.cat([example.unsqueeze(0)] * batch_size)
@@ -31,6 +42,15 @@ def example_batch(example, batch_size):
 
 def random_mask(dims):
     return (torch.rand(dims) > 0.5).to(torch.float32)
+
+
+def image_mask(x, factor):
+    new_dims = tuple([x.shape[0], x.shape[1], x.shape[2] * factor, x.shape[3] * factor])
+    out = torch.zeros(new_dims)
+    out[:, :, ::factor, ::factor] = x[:, :, :, :]
+    mask = torch.zeros(new_dims)
+    mask[:, :, ::factor, ::factor] = 1
+    return out, mask
 
 
 # taken from https://github.com/pytorch/examples/blob/1de2ff9338bacaaffa123d03ce53d7522d5dcc2e/imagenet/main.py
@@ -49,11 +69,13 @@ class AverageMeter(object):
         self.sum = 0
         self.count = 0
 
-    def update(self, val, n=1):
+    def update(self, val, writer=None, step=0, n=1):
         self.val = val
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+        if writer != None:
+            writer.add_scalar(f"{self.name}/loss", val, step)
 
     def __str__(self):
         fmtstr = "{name} {val" + self.fmt + "} ({avg" + self.fmt + "})"
