@@ -5,8 +5,11 @@ import os
 
 
 class HDF5Cache:
+    """
+    Provides a class to cache training examples since png -> tensor conversion can be slow
+    """
+
     # TODO: make completely modular
-    # creates
     def __init__(self, dataset_name, cache_size):
         self.cache_size = cache_size  # number images per cache
         self.cache_handler = None  # hdf5 open
@@ -38,7 +41,6 @@ class HDF5Cache:
         return self.generate_cached_name(idx) in os.listdir("./datasets/cached")
 
     def get_item(self, idx, dataset):
-        # breaks on 768
         # gets the image with index idx
         if not self.already_cached(idx):
             # self.cache_image(idx)

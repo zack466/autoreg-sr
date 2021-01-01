@@ -1,5 +1,37 @@
 is transfer learning/pretrainng able to be applied here?
 
+Goals:
+Efficient super-resolution
+- limit to 2 gb memory
+- less than a second wall-clock time inference
+- attempt photorealism
+- 256x256 input size, upscale 4x
+
+Masked attention for super-resolution
+Using attention for better quality along with efficiency (though it may not convert directly to wall-clock time).
+Masking the attention so that pixels are implicitly predicted as the mask updates.
+Probabilistic models are still way to slow to train and implement.
+Don't forget positional encoding!
+
+things to test:
+- remove Batch norm
+- use L1 instead of L2 (EDSR)
+- ignore border pixels
+
+Maybe replace srresnet residual blocks with attention blocks?
+
+Training time does not matter, inference is what is important,
+so small GANs may be OK.
+
+Identify good content losses, which lengthen training time but
+make model better without affecting inference time.
+L2/L1/PSNR/SSIM loss not good on their own.
+
+VGG19 hr-lr loss, PartialConv perceptual loss, DISTS metric
+
+play around with LR scheudling and hyperparameter tuning only
+if time allows.
+
 TODO
 - LR scheduling - keep experimenting
 - deal with weird noise issue in images, ruining model on some examples
@@ -37,4 +69,13 @@ python inference.py --model PConvResNet --loss VGG19 --lr_size 32 --ckpt_name pc
 
 python train.py --model PConvResNet --loss VGG19 --learning_rate 0.0005 --lr_size 32 --epochs 8 --ckpt_every 1 --ckpt_name pconvresnet_vgg
 python inference.py --model PConvResNet --lr_size 32 --loss VGG19 --ckpt_name pconvresnet_vgg
+
+python train.py --model PartialSR --loss VGG16Partial --learning_rate 0.001 --ckpt_name PartialSR_32_long_BN --lr_size 32 --batch_size 64 --num_patches 32 --epochs 20 --metrics PSNR SSIM consistency sample lr
+
+overnight:
+python train.py --model PartialSR --loss VGG16Partial --learning_rate 0.001 --ckpt_name PartialSR_32_long --lr_size 32 --batch_size 64 --num_patches 32 --epochs 20 --metrics PSNR SSIM consistency sample lr
+
+python train.py --model ConvSR --loss VGG16Partial --learning_rate 0.001 --ckpt_name ConvSR_32_long_BN --lr_size 32 --batch_size 64 --num_patches 32 --epochs 20 --pre_upscale True --metrics PSNR SSIM consistency sample lr
+
+python train.py --model ConvSR --loss VGG16Partial --learning_rate 0.001 --ckpt_name ConvSR_32_long --lr_size 32 --batch_size 64 --num_patches 32 --epochs 20 --pre_upscale True --metrics PSNR SSIM consistency sample lr
 

@@ -3,6 +3,7 @@ import numpy as np
 from torch.nn.functional import l1_loss, mse_loss
 from .pytorch_ssim import ssim
 from .pytorch_msssim import ms_ssim
+import torch.nn.functional as F
 
 
 def psnr(lr, hr):

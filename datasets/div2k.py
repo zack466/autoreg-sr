@@ -55,6 +55,8 @@ class Div2K(Dataset):
         """
         size: pixel dimensions of LR image (to be upscaled)
         factor: upscaling/downscaling factor, options: 2, 3, 4
+        mult: number of patches to extract from each source image
+        cache_size: number of training examples stored in each cache (h5) file
         """
         self.size = size
         self.factor = factor

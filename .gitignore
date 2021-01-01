@@ -10,5 +10,6 @@ datasets/cached/*
 */*/__pycache__
 */*/*/__pycache__
 */*/*/*/__pycache__
+*/*/*/*/*/__pycache__
 models/checkpoints
 models/outputs

@@ -26,13 +26,14 @@ def showImages(imgs):
 
 
 def saveImages(imgs, path):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 2), dpi=250)
     for i, image in enumerate(imgs):
         fig.add_subplot(1, len(imgs), i + 1)
         plt.imshow((image * 256).astype("uint8").transpose(2, 1, 0))
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
     plt.savefig(path)
+    plt.close(fig)
 
 
 def example_batch(example, batch_size):
@@ -69,13 +70,13 @@ class AverageMeter(object):
         self.sum = 0
         self.count = 0
 
-    def update(self, val, writer=None, step=0, n=1):
+    def update(self, val, writer=None, step=0, n=1, name=""):
         self.val = val
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
         if writer != None:
-            writer.add_scalar(f"{self.name}/loss", val, step)
+            writer.add_scalar(f"{self.name}/{name}", val, step)
 
     def __str__(self):
         fmtstr = "{name} {val" + self.fmt + "} ({avg" + self.fmt + "})"
