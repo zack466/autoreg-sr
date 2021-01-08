@@ -92,9 +92,9 @@ def main():
         f"./models/outputs/{config.ckpt_name}/" + config.ckpt_name + ".pt"
     )
     model.load_state_dict(checkpoint["model_state_dict"])
-    start_epoch = checkpoint["epoch"]
-    training_loss = checkpoint["training_loss"]
-    validation_loss = checkpoint["validation_loss"]
+    # start_epoch = checkpoint["epoch"]
+    # training_loss = checkpoint["training_loss"]
+    # validation_loss = checkpoint["validation_loss"]
     print("Loading from previous checkpoint")
     # except:
     #     print("Must load a model from a checkpoint or error loading model")

@@ -1,5 +1,7 @@
 is transfer learning/pretrainng able to be applied here?
 
+results look best on lr_size = 64
+
 Goals:
 Efficient super-resolution
 - limit to 2 gb memory

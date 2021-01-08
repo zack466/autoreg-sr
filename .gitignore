@@ -13,3 +13,4 @@ datasets/cached/*
 */*/*/*/*/__pycache__
 models/checkpoints
 models/outputs
+trace.json

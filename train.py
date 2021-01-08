@@ -41,14 +41,18 @@ def parse_args():
 
 def main():
     config = parse_args()
-    using_mask = config.model in [
-        "PConvSR",
-        "PConvResNet",
-        "PartialConv",
-        "PartialAttention",
-        "PartialNoAttention",
-        "PartialSR",
-    ]
+    using_mask = (
+        config.model
+        in [
+            "PConvSR",
+            "PConvResNet",
+            "PartialConv",
+            "PartialAttention",
+            "PartialNoAttention",
+            "PartialSR",
+        ]
+        or "Partial" in config.model
+    )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -109,11 +113,15 @@ def main():
         loss_func = torch.nn.MSELoss()
     elif config.loss == "VGG16Partial":
         loss_func = losses.VGG16PartialLoss().to(device)
+        if "VGG16Partial" in config.metrics:
+            vgg = loss_func
     elif config.loss == "VGG19":
         loss_func = losses.VGG19Loss().to(device)
     elif config.loss == "DISTS":
         loss_func = losses.DISTS().to(device)
     else:
+        if "VGG16Partial" in config.metrics:
+            vgg = losses.VGG16PartialLoss().to(device)
         try:
             loss_func = getattr(losses, config.loss)
         except:
@@ -218,6 +226,9 @@ def main():
                                     "sample/pred", pred[0], global_step=step
                                 )
                             model.train()
+                        elif metric == "VGG16Partial":
+                            val, _, _ = vgg(pred, hr)
+                            writer.add_scalar(tag, val.item(), step)
 
     print(f"Training starting at epoch {start_epoch}")
     for epoch in range(start_epoch, start_epoch + config.epochs):
